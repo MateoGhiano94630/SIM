@@ -264,26 +264,14 @@ class GeneradorDeRandoms:
 
             def densidad_probabilidad_li(Li, lambd):
                 return 1 - np.exp(-lambd * Li)
-
-            # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
-            freq_observadas, _ = np.histogram(
-                random_numbers, bins=num_intervals)
-            
             
             # Calcular frecuencia esperada BIEN
             freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], int(self.entry_L.get())) - densidad_probabilidad_li((limites_inferiores[i]),int(self.entry_L.get()))) * int(self.entry_N2.get()) for i in range(num_intervals)]
-            intervalos_removidos = 0
-            remover = 0
-            for i in freq_esperada:
-                print(i)
-            
-       
+         
             i = 0
             while i < len(freq_esperada):
                 while freq_esperada[i] < 5:
                     if i == len(freq_esperada) - 1:
-                        print(freq_esperada)
-                        print("gol")
                         freq_esperada[i-1] += freq_esperada[i]
                         freq_esperada.pop(i)
                         break
@@ -292,10 +280,14 @@ class GeneradorDeRandoms:
                         freq_esperada.pop(i+1)
                 i += 1
 
+            num_intervals = len(freq_esperada)
+            # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
+            freq_observadas, _ = np.histogram(
+                random_numbers, bins=num_intervals)
             # Calcular estadístico de Ji cuadrado BIEN
             ji_cuadrado_calculado = np.sum(
                 (freq_observadas - freq_esperada) ** 2 / freq_esperada)
-
+    
             # Obtener el valor crítico de la tabla de Ji cuadrado
             grados_libertad = num_intervals - 1
             ji_cuadrado_tabla = chi2.ppf(0.95, grados_libertad)
