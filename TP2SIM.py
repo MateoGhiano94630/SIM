@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from scipy.stats import chi2, expon
+from scipy.stats import chi2, expon, norm
 from collections import Counter
 
 
@@ -92,8 +92,27 @@ class GeneradorDeRandoms:
 
         self.label_N3 = ttk.Label(self.tab3, text="Cantidad de muestras (N):")
         self.label_N3.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
         self.entry_N3 = ttk.Entry(self.tab3)
         self.entry_N3.grid(row=0, column=1, padx=10, pady=5)
+
+        self.label_M = ttk.Label(self.tab3, text="Ingrese la media:")
+        self.label_M.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+
+        self.entry_M = ttk.Entry(self.tab3)
+        self.entry_M.grid(row=1, column=1, padx=10, pady=5)
+
+        self.label_DS = ttk.Label(self.tab3, text="Ingrese la desviacion estandar:")
+        self.label_DS.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+
+        self.entry_DS = ttk.Entry(self.tab3)
+        self.entry_DS.grid(row=2, column=1, padx=10, pady=5)
+
+        self.label_intervalos3 = ttk.Label(self.tab3, text="Numero de intervalos")
+        self.label_intervalos3.grid(row=3, column=0, padx=10, pady=5, sticky="w")
+
+        self.entry_intervals3 = ttk.Entry(self.tab3)
+        self.entry_intervals3.grid(row=3, column=1, padx=10, pady=5)
 
         self.button_generate = ttk.Button(
             self.tab3, text="Generar", command=self.generate_random_numbers)
@@ -175,8 +194,7 @@ class GeneradorDeRandoms:
             max_num = np.max(random_numbers)
             rango = max_num - min_num
             amplitud = rango / num_intervals
-            limites_inferiores = [min_num + i *
-                                  amplitud for i in range(num_intervals)]
+            limites_inferiores = [min_num + i * amplitud for i in range(num_intervals)]
             limites_superiores = [
                 lim_inf + amplitud for lim_inf in limites_inferiores]
 
@@ -257,7 +275,7 @@ class GeneradorDeRandoms:
                                   amplitud for i in range(num_intervals)]
             limites_superiores = [
                 lim_inf + amplitud for lim_inf in limites_inferiores]
-            media = np.mean(random_numbers) #calculo media
+            
 
             def densidad_probabilidad_ls(LS, lambd):
                 return 1 - np.exp(-lambd * LS)
@@ -319,11 +337,118 @@ class GeneradorDeRandoms:
             self.text_output2.insert(
                 tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
             self.text_output2.insert(tk.END, resultado_prueba)
-
-        elif current_tab == 2:
-            pass
+        # Poisson
         elif current_tab == 3:
             pass
+        # Normal
+        elif current_tab == 2:
+            # sumar ambos n1
+            N = int(self.entry_N3.get())
+            MED = float(self.entry_M.get())
+            DS = float(self.entry_DS.get())
+            if N > 1000000:
+                messagebox.showerror(
+                    "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
+                return
+              
+            try:
+                num_intervals = int(self.entry_intervals3.get())
+                if num_intervals not in [10, 15, 20, 25]:
+                    messagebox.showerror(
+                        "Error", "El número de intervalos debe ser 10, 15, 20 o 25.")
+                    return
+            except ValueError:
+                messagebox.showerror(
+                    "Error", "El número de intervalos debe ser un número entero.")
+                return
+
+            
+            RND1 = np.random.normal(0,1,N)
+            RND2 = np.random.normal(0,1,N)
+            
+            print(RND1)
+            print(RND2)
+
+
+            N1 = len(RND1) * [0]
+            N2 = len(RND2) * [0]
+            for i, r in zip(RND1,RND2):
+                N1.append((np.sqrt((-2 * np.log(1-i)) * np.cos(2 * np.pi * r))* DS )+ MED)
+                N2.append((np.sqrt((-2 * np.log( 1 - i)) * np.sin(2 * np.pi * r)) * DS) + MED)
+
+            NT = N1 + N2
+            print(NT)
+           
+            min_num = np.min(NT)
+            print(min_num)
+            max_num = np.max(NT)
+            print(max_num)
+            rango = max_num - min_num
+            amplitud = rango / num_intervals
+            limites_inferiores = [min_num + i * amplitud for i in range(num_intervals)]
+            limites_superiores = [
+                lim_inf + amplitud for lim_inf in limites_inferiores]
+            
+            # Calcular frecuencias observadas
+            freq_observadas, _ = np.histogram(
+                NT, bins=num_intervals)
+            
+
+            def densidad_probabilidad_ls(LS, MED, DS):
+                return norm.cdf(LS, MED, DS)
+
+            def densidad_probabilidad_li(LI, MED, DS):
+                return norm.cdf(LI, MED, DS)
+          
+
+
+            # Calcular frecuencia esperada BIEN
+            freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], float(self.entry_M.get()), float(self.entry_DS)) - densidad_probabilidad_li((limites_inferiores[i]),float(self.entry_M.get()), float(self.entry_DS))) * (len(NT)) for i in range(num_intervals)]
+            for i in  freq_esperada:
+                print(i)
+            # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
+            freq_observadas, _ = np.histogram(
+                NT, bins=num_intervals)
+            # Calcular estadístico de Ji cuadrado BIEN
+            ji_cuadrado_calculado = np.sum(
+                (freq_observadas - freq_esperada) ** 2 / freq_esperada)
+    
+            # Obtener el valor crítico de la tabla de Ji cuadrado
+            grados_libertad = num_intervals - 1
+            ji_cuadrado_tabla = chi2.ppf(0.95, grados_libertad)
+
+            # Verificar si se pasó la prueba de Ji cuadrado
+            if ji_cuadrado_calculado <= ji_cuadrado_tabla:
+                resultado_prueba = "Se pasó de forma exitosa la prueba del Ji cuadrado."
+            else:
+                resultado_prueba = "No se pasó la prueba del Ji cuadrado."
+            # Mostrar histograma con frecuencias observadas
+            plt.figure()
+            plt.hist(random_numbers, bins=num_intervals, edgecolor='black')
+            for lim_inf, lim_sup, freq_obs in zip(limites_inferiores, limites_superiores, freq_observadas):
+                plt.text((lim_inf + lim_sup) / 2, freq_obs,
+                         str(freq_obs), ha='center', va='bottom')
+            plt.xlabel('Valor')
+            plt.ylabel('Frecuencia')
+            plt.title('Histograma de Frecuencias')
+            plt.grid(True)
+            plt.show()
+
+            # Mostrar resultados en el widget de texto
+            self.text_output2.insert(
+                tk.END, "Resultados del test de Ji cuadrado:\n")
+            self.text_output2.insert(
+                tk.END, f"Grados de libertad: {grados_libertad}\n")
+            self.text_output2.insert(
+                tk.END, f"Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n")
+            self.text_output2.insert(
+                tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
+            self.text_output2.insert(tk.END, resultado_prueba)
+         
+
+            
+
+
 
 root = tk.Tk()
 app = GeneradorDeRandoms(root)
