@@ -363,26 +363,15 @@ class GeneradorDeRandoms:
                 return
 
             
-            RND1 = np.random.normal(0,1,N)
-            RND2 = np.random.normal(0,1,N)
+            N1 = np.random.normal(MED,DS,N)
+            N2 = np.random.normal(MED,DS,N)
             
-            print(RND1)
-            print(RND2)
-
-
-            N1 = len(RND1) * [0]
-            N2 = len(RND2) * [0]
-            for i, r in zip(RND1,RND2):
-                N1.append((np.sqrt((-2 * np.log(1-i)) * np.cos(2 * np.pi * r))* DS )+ MED)
-                N2.append((np.sqrt((-2 * np.log( 1 - i)) * np.sin(2 * np.pi * r)) * DS) + MED)
-
+       
             NT = N1 + N2
-            print(NT)
-           
+    
             min_num = np.min(NT)
-            print(min_num)
             max_num = np.max(NT)
-            print(max_num)
+
             rango = max_num - min_num
             amplitud = rango / num_intervals
             limites_inferiores = [min_num + i * amplitud for i in range(num_intervals)]
@@ -392,18 +381,14 @@ class GeneradorDeRandoms:
             # Calcular frecuencias observadas
             freq_observadas, _ = np.histogram(
                 NT, bins=num_intervals)
-            
-
-            def densidad_probabilidad_ls(LS, MED, DS):
-                return norm.cdf(LS, MED, DS)
-
-            def densidad_probabilidad_li(LI, MED, DS):
-                return norm.cdf(LI, MED, DS)
-          
+            def densidad_probabilidad_li(LI,MED,DS):
+                return norm.cdf(LI,MED,DS)
+            def densidad_probabilidad_ls(LS,MED,DS):
+                return norm.cdf(LS,MED,DS)
 
 
             # Calcular frecuencia esperada BIEN
-            freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], float(self.entry_M.get()), float(self.entry_DS)) - densidad_probabilidad_li((limites_inferiores[i]),float(self.entry_M.get()), float(self.entry_DS))) * (len(NT)) for i in range(num_intervals)]
+            freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], float(self.entry_M.get()), float(self.entry_DS.get())) - densidad_probabilidad_li((limites_inferiores[i]),float(self.entry_M.get()), float(self.entry_DS.get()))) * (len(NT)) for i in range(num_intervals)]
             for i in  freq_esperada:
                 print(i)
             # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
@@ -424,7 +409,7 @@ class GeneradorDeRandoms:
                 resultado_prueba = "No se pasó la prueba del Ji cuadrado."
             # Mostrar histograma con frecuencias observadas
             plt.figure()
-            plt.hist(random_numbers, bins=num_intervals, edgecolor='black')
+            plt.hist(NT, bins=num_intervals, edgecolor='black')
             for lim_inf, lim_sup, freq_obs in zip(limites_inferiores, limites_superiores, freq_observadas):
                 plt.text((lim_inf + lim_sup) / 2, freq_obs,
                          str(freq_obs), ha='center', va='bottom')
