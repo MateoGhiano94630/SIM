@@ -381,16 +381,17 @@ class GeneradorDeRandoms:
             # Calcular frecuencias observadas
             freq_observadas, _ = np.histogram(
                 NT, bins=num_intervals)
-            def densidad_probabilidad_li(LI,MED,DS):
-                return norm.cdf(LI,MED,DS)
-            def densidad_probabilidad_ls(LS,MED,DS):
-                return norm.cdf(LS,MED,DS)
+            
+            def densidad_probabilidad_li(limites_inferiores,MED,DS):
+               return  norm.cdf(limites_inferiores,MED,DS)
+            def densidad_probabilidad_ls(limites_superiores,MED,DS):
+               return  norm.cdf(limites_superiores,MED,DS)
 
+            print(NT)
 
-            # Calcular frecuencia esperada BIEN
-            freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], float(self.entry_M.get()), float(self.entry_DS.get())) - densidad_probabilidad_li((limites_inferiores[i]),float(self.entry_M.get()), float(self.entry_DS.get()))) * (len(NT)) for i in range(num_intervals)]
-            for i in  freq_esperada:
-                print(i)
+            # Calcular frecuencia esperada 
+            freq_esperada = [((densidad_probabilidad_ls(ls, MED, DS) - densidad_probabilidad_li(li, MED, DS)) * len(NT)) for li, ls in zip(limites_inferiores, limites_superiores)]
+            print(freq_esperada)
             # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
             freq_observadas, _ = np.histogram(
                 NT, bins=num_intervals)
