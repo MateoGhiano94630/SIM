@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from scipy.stats import chi2, expon, norm
 from collections import Counter
+import math
 
 
 class GeneradorDeRandoms:
@@ -108,11 +109,6 @@ class GeneradorDeRandoms:
         self.entry_DS = ttk.Entry(self.tab3)
         self.entry_DS.grid(row=2, column=1, padx=10, pady=5)
 
-        self.label_intervalos3 = ttk.Label(self.tab3, text="Numero de intervalos")
-        self.label_intervalos3.grid(row=3, column=0, padx=10, pady=5, sticky="w")
-
-        self.entry_intervals3 = ttk.Entry(self.tab3)
-        self.entry_intervals3.grid(row=3, column=1, padx=10, pady=5)
 
         self.button_generate = ttk.Button(
             self.tab3, text="Generar", command=self.generate_random_numbers)
@@ -346,29 +342,21 @@ class GeneradorDeRandoms:
             N = int(self.entry_N3.get())
             MED = float(self.entry_M.get())
             DS = float(self.entry_DS.get())
+            num_intervals = int(math.sqrt(N))
+            
             if N > 1000000:
                 messagebox.showerror(
                     "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
                 return
               
-            try:
-                num_intervals = int(self.entry_intervals3.get())
-                if num_intervals not in [10, 15, 20, 25]:
-                    messagebox.showerror(
-                        "Error", "El número de intervalos debe ser 10, 15, 20 o 25.")
-                    return
-            except ValueError:
-                messagebox.showerror(
-                    "Error", "El número de intervalos debe ser un número entero.")
-                return
+            NT = [0]
 
-            
-            N1 = np.random.normal(MED,DS,N)
-            N2 = np.random.normal(MED,DS,N)
-            
-       
-            NT = N1 + N2
-    
+            N1 = np.random.normal(MED,DS,(N//2))
+            N2 = np.random.normal(MED,DS,(N//2))
+
+            NT.extend(N1)
+            NT.extend(N2)
+
             min_num = np.min(NT)
             max_num = np.max(NT)
 
@@ -386,8 +374,6 @@ class GeneradorDeRandoms:
                return  norm.cdf(limites_inferiores,MED,DS)
             def densidad_probabilidad_ls(limites_superiores,MED,DS):
                return  norm.cdf(limites_superiores,MED,DS)
-
-            print(NT)
 
             # Calcular frecuencia esperada 
             freq_esperada = [((densidad_probabilidad_ls(ls, MED, DS) - densidad_probabilidad_li(li, MED, DS)) * len(NT)) for li, ls in zip(limites_inferiores, limites_superiores)]
@@ -431,9 +417,6 @@ class GeneradorDeRandoms:
                 tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
             self.text_output2.insert(tk.END, resultado_prueba)
          
-
-            
-
 
 
 root = tk.Tk()
