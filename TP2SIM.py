@@ -46,117 +46,9 @@ class GeneradorDeRandoms:
         elif current_tab == 3:
             pass
 
-
-
-def exponencial(self):
-            N = int(self.entry_N2.get())
-            if N > 1000000:
-                messagebox.showerror(
-                    "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
-                return
-            if self.entry_L.get() is ValueError:
-                messagebox.showerror(
-                    "Error", "Lambda debe ser entero.")
-            
-            random_numbers = np.random.exponential(scale=1/int(self.entry_L.get()), size=int(self.entry_N2.get()))
-
-            try:
-                num_intervals = int(self.entry_intervals2.get())
-                if num_intervals not in [10, 15, 20, 25]:
-                    messagebox.showerror(
-                        "Error", "El número de intervalos debe ser 10, 15, 20 o 25.")
-                    return
-            except ValueError:
-                messagebox.showerror(
-                    "Error", "El número de intervalos debe ser un número entero.")
-                return
-
-            # Calcular límites de intervalos
-            min_num = np.min(random_numbers)
-            max_num = np.max(random_numbers)
-            rango = max_num - min_num
-            amplitud = rango / num_intervals
-            limites_inferiores = [min_num + i *
-                                  amplitud for i in range(num_intervals)]
-            limites_superiores = [
-                lim_inf + amplitud for lim_inf in limites_inferiores]
-            
-
-            def densidad_probabilidad_ls(LS, lambd):
-                return 1 - np.exp(-lambd * LS)
-
-            def densidad_probabilidad_li(Li, lambd):
-                return 1 - np.exp(-lambd * Li)
-            
-            # Calcular frecuencia esperada BIEN
-            freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], int(self.entry_L.get())) - densidad_probabilidad_li((limites_inferiores[i]),int(self.entry_L.get()))) * int(self.entry_N2.get()) for i in range(num_intervals)]
-         
-            i = 0
-            while i < len(freq_esperada):
-                while freq_esperada[i] < 5:
-                    if i == len(freq_esperada) - 1:
-                        freq_esperada[i-1] += freq_esperada[i]
-                        freq_esperada.pop(i)
-                        break
-                    elif i+1 < len(freq_esperada):
-                        freq_esperada[i] += freq_esperada[i+1]
-                        freq_esperada.pop(i+1)
-                i += 1
-
-            num_intervals = len(freq_esperada)
-            # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
-            freq_observadas, _ = np.histogram(
-                random_numbers, bins=num_intervals)
-            # Calcular estadístico de Ji cuadrado BIEN
-            ji_cuadrado_calculado = np.sum(
-                (freq_observadas - freq_esperada) ** 2 / freq_esperada)
-    
-            # Obtener el valor crítico de la tabla de Ji cuadrado
-            grados_libertad = num_intervals - 1
-            ji_cuadrado_tabla = chi2.ppf(0.95, grados_libertad)
-
-            # Verificar si se pasó la prueba de Ji cuadrado
-            if ji_cuadrado_calculado <= ji_cuadrado_tabla:
-                resultado_prueba = "Se pasó de forma exitosa la prueba del Ji cuadrado."
-            else:
-                resultado_prueba = "No se pasó la prueba del Ji cuadrado."
-            # Mostrar histograma con frecuencias observadas
-            plt.figure()
-            plt.hist(random_numbers, bins=num_intervals, edgecolor='black')
-            for lim_inf, lim_sup, freq_obs in zip(limites_inferiores, limites_superiores, freq_observadas):
-                plt.text((lim_inf + lim_sup) / 2, freq_obs,
-                         str(freq_obs), ha='center', va='bottom')
-            plt.xlabel('Valor')
-            plt.ylabel('Frecuencia')
-            plt.title('Histograma de Frecuencias')
-            plt.grid(True)
-            plt.show()
-
-            # Mostrar resultados en el widget de texto
-            self.text_output2.insert(
-                tk.END, "Resultados del test de Ji cuadrado:\n")
-            self.text_output2.insert(
-                tk.END, f"Grados de libertad: {grados_libertad}\n")
-            self.text_output2.insert(
-                tk.END, f"Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n")
-            self.text_output2.insert(
-                tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
-            self.text_output2.insert(tk.END, resultado_prueba)
 def uniforme(self):
-        
-            # Validacion de que la cantidad de muestras sea menor a un millon y que sea un numero
-            try:
-                N = int(self.entry_N.get())
-                if N > 1000000:
-                    messagebox.showerror(
-                        "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
-                    return
-                    
-            except ValueError:
-                messagebox.showerror(
-                    "Error", "El valor de la cantidad de muestras (N) debe ser un numero.")
-                return
-            
+
+            N = controlar_N(int(self.entry_N.get()))
             # Validacion que el valor de a sea menor que el valor de b y que ambos sean numeros
             try:
                 A = float(self.entry_A.get())
@@ -179,18 +71,7 @@ def uniforme(self):
             for num in random_numbers:
                 self.text_output.insert(tk.END, f"{num:.4f}\t")
 
-            # Reviso que el numero de intervalos este entre los aceptables y sea un numero
-            try:
-                num_intervals = int(self.entry_intervals.get())
-                if num_intervals not in [10, 15, 20, 25]:
-                    messagebox.showerror(
-                        "Error", "El número de intervalos debe ser 10, 15, 20 o 25.")
-                    return
-            except ValueError:
-                messagebox.showerror(
-                    "Error", "El número de intervalos debe ser un número entero.")
-                return
-
+            num_intervals = int(self.entry_intervals.get())
         
             min_num = np.min(random_numbers)
             max_num = np.max(random_numbers)
@@ -262,7 +143,7 @@ def uniforme(self):
             plt.figure(figsize=(8, 4))
             columns = ('Intervalo', 'Frecuencia Observada', 'Frecuencia Esperada')
             rows = [f'{lim_inf:.2f} - {lim_sup:.2f}' for lim_inf, lim_sup in zip(limites_inferiores, limites_superiores)]
-            cell_text = [[intervalo, str(freq), freq_esperada] for intervalo, freq in zip(rows, freq_observadas)]
+            cell_text = [[intervalo, str(freq), round(freq_esperada,4)] for intervalo, freq in zip(rows, freq_observadas)]
 
             plt.table(cellText=cell_text, colLabels=columns, loc='center')
             plt.axis('off')  # Ocultar ejes para que se vea solo la tabla
@@ -270,24 +151,95 @@ def uniforme(self):
             plt.title('Tabla de Frecuencias')
             plt.show()
         
-           
-                          
+def exponencial(self):
+            N = controlar_N(int(self.entry_N2.get()))
+            
+            random_numbers = np.random.exponential(scale=1/int(self.entry_L.get()), size=int(self.entry_N2.get()))
+            
+            num_intervals = int(self.entry_intervals2.get())  
+            
+            # Calcular límites de intervalos
+            min_num = np.min(random_numbers)
+            max_num = np.max(random_numbers)
+            rango = max_num - min_num
+            amplitud = rango / num_intervals
+            limites_inferiores = [min_num + i *
+                                  amplitud for i in range(num_intervals)]
+            limites_superiores = [
+                lim_inf + amplitud for lim_inf in limites_inferiores]
+            
 
-           
-        
+            def densidad_probabilidad_ls(LS, lambd):
+                return 1 - np.exp(-lambd * LS)
+
+            def densidad_probabilidad_li(Li, lambd):
+                return 1 - np.exp(-lambd * Li)
             
+            # Calcular frecuencia esperada BIEN
+            freq_esperada = [(densidad_probabilidad_ls(limites_superiores[i], int(self.entry_L.get())) - densidad_probabilidad_li((limites_inferiores[i]),int(self.entry_L.get()))) * int(self.entry_N2.get()) for i in range(num_intervals)]
+         
+            i = 0
+            while i < len(freq_esperada):
+                while freq_esperada[i] < 5:
+                    if i == len(freq_esperada) - 1:
+                        freq_esperada[i-1] += freq_esperada[i]
+                        freq_esperada.pop(i)
+                        break
+                    elif i+1 < len(freq_esperada):
+                        freq_esperada[i] += freq_esperada[i+1]
+                        freq_esperada.pop(i+1)
+                i += 1
+
+            num_intervals = len(freq_esperada)
+            # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
+            freq_observadas, _ = np.histogram(
+                random_numbers, bins=num_intervals)
+            # Calcular estadístico de Ji cuadrado BIEN
+            ji_cuadrado_calculado = np.sum(
+                (freq_observadas - freq_esperada) ** 2 / freq_esperada)
+    
+            # Obtener el valor crítico de la tabla de Ji cuadrado
+            grados_libertad = num_intervals - 1
+            ji_cuadrado_tabla = chi2.ppf(0.95, grados_libertad)
+
+            # Verificar si se pasó la prueba de Ji cuadrado
+            if ji_cuadrado_calculado <= ji_cuadrado_tabla:
+                resultado_prueba = "Se pasó de forma exitosa la prueba del Ji cuadrado. Se acepta la H0"
+            else:
+                resultado_prueba = "No se pasó la prueba del Ji cuadrado. Se rechaza la H0"
             
+            # Mostrar histograma con frecuencias observadas
+            plt.figure()
+            plt.hist(random_numbers, bins=num_intervals, edgecolor='black')
+            for lim_inf, lim_sup, freq_obs in zip(limites_inferiores, limites_superiores, freq_observadas):
+                plt.text((lim_inf + lim_sup) / 2, freq_obs,
+                         str(freq_obs), ha='center', va='bottom')
+            plt.xlabel('Valor')
+            plt.ylabel('Frecuencia')
+            plt.title('Histograma de Frecuencias')
+            plt.grid(True)
+            plt.show()
+
+              # Mostrar resultados en el widget de texto
+            messagebox.showinfo(title="Resultados del test de Ji cuadrado", message=f"Grados de libertad: {grados_libertad}\n Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n  Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n {resultado_prueba}")
+
+            # Mostrar Tabla de frecuencias
+            plt.figure(figsize=(8, 4))
+            columns = ('Intervalo', 'Frecuencia Observada', 'Frecuencia Esperada')
+            rows = [f'{lim_inf:.2f} - {lim_sup:.2f}' for lim_inf, lim_sup in zip(limites_inferiores, limites_superiores)]
+            cell_text = [[intervalo, str(freq), round(freq_esp,4)] for intervalo, freq, freq_esp in zip(rows, freq_observadas, freq_esperada)]
+
+            plt.table(cellText=cell_text, colLabels=columns, loc='center')
+            plt.axis('off')  # Ocultar ejes para que se vea solo la tabla
+
+            plt.title('Tabla de Frecuencias')
+            plt.show()
+
 def normal(self):
-                # sumar ambos n1
-            N = int(self.entry_N3.get())
+            N = controlar_N(int(self.entry_N3.get()))
             MED = float(self.entry_M.get())
             DS = float(self.entry_DS.get())
-            num_intervals = int(math.sqrt(N))
-            
-            if N > 1000000:
-                messagebox.showerror(
-                    "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
-                return
+            num_intervals = int(self.entry_intervals3.get())
               
             NT = [0]
 
@@ -317,7 +269,19 @@ def normal(self):
 
             # Calcular frecuencia esperada 
             freq_esperada = [((densidad_probabilidad_ls(ls, MED, DS) - densidad_probabilidad_li(li, MED, DS)) * len(NT)) for li, ls in zip(limites_inferiores, limites_superiores)]
-            print(freq_esperada)
+            i = 0
+            while i < len(freq_esperada):
+                while freq_esperada[i] < 5:
+                    if i == len(freq_esperada) - 1:
+                        freq_esperada[i-1] += freq_esperada[i]
+                        freq_esperada.pop(i)
+                        break
+                    elif i+1 < len(freq_esperada):
+                        freq_esperada[i] += freq_esperada[i+1]
+                        freq_esperada.pop(i+1)
+                i += 1
+            num_intervals = len(freq_esperada) 
+             
             # Calcular frecuencias observadas IGUAL QUE EN UNIFORME
             freq_observadas, _ = np.histogram(
                 NT, bins=num_intervals)
@@ -345,18 +309,21 @@ def normal(self):
             plt.title('Histograma de Frecuencias')
             plt.grid(True)
             plt.show()
+               # Mostrar resultados en el widget de texto
+            messagebox.showinfo(title="Resultados del test de Ji cuadrado", message=f"Grados de libertad: {grados_libertad}\n Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n  Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n {resultado_prueba}")
 
-            # Mostrar resultados en el widget de texto
-            self.text_output2.insert(
-                tk.END, "Resultados del test de Ji cuadrado:\n")
-            self.text_output2.insert(
-                tk.END, f"Grados de libertad: {grados_libertad}\n")
-            self.text_output2.insert(
-                tk.END, f"Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n")
-            self.text_output2.insert(
-                tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
-            self.text_output2.insert(tk.END, resultado_prueba)
+            # Mostrar Tabla de frecuencias
+            plt.figure(figsize=(8, 4))
+            columns = ('Intervalo', 'Frecuencia Observada', 'Frecuencia Esperada')
+            rows = [f'{lim_inf:.2f} - {lim_sup:.2f}' for lim_inf, lim_sup in zip(limites_inferiores, limites_superiores)]
+            cell_text = [[intervalo, str(freq), round(freq_esp,4)] for intervalo, freq, freq_esp in zip(rows, freq_observadas, freq_esperada)]
 
+            plt.table(cellText=cell_text, colLabels=columns, loc='center')
+            plt.axis('off')  # Ocultar ejes para que se vea solo la tabla
+
+            plt.title('Tabla de Frecuencias')
+            plt.show()
+            
 
 def interfaz_uniforme(self, root):
     self.root = root
@@ -414,6 +381,7 @@ def interfaz_exponencial(self, root):
 
     self.label_N2 = ttk.Label(self.tab2, text="Cantidad de muestras (N):")
     self.label_N2.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+    
     self.entry_N2 = ttk.Entry(self.tab2)
     self.entry_N2.grid(row=0, column=1, padx=10, pady=5)
 
@@ -426,7 +394,9 @@ def interfaz_exponencial(self, root):
     self.label_intervalos2 = ttk.Label(self.tab2, text="Numero de intervalos")
     self.label_intervalos2.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 
-    self.entry_intervals2 = ttk.Entry(self.tab2)
+    self.entry_intervals2 =  ttk.Combobox(self.tab2,
+                                        state="redondly",
+                                        values=[10,15,20,25])
     self.entry_intervals2.grid(row=2, column=1, padx=10, pady=5)
 
     self.button_generate = ttk.Button(
@@ -434,11 +404,11 @@ def interfaz_exponencial(self, root):
     self.button_generate.grid(
         row=5, column=0, columnspan=2, padx=10, pady=10)
 
-    self.canvas = tk.Canvas(self.tab2, width=600, height=400)
+    self.canvas = tk.Canvas(self.tab2, width=400, height=600)
     self.canvas.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
-    self.text_output2 = tk.Text(self.tab2, width=50, height=10)
-    self.text_output2.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
+    self.text_output2 = tk.Text(self.tab2, width=70, height=30)
+    self.text_output2.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
 def interfaz_normal(self, root):
     self.tab3 = ttk.Frame(self.notebook)
@@ -449,6 +419,15 @@ def interfaz_normal(self, root):
 
     self.entry_N3 = ttk.Entry(self.tab3)
     self.entry_N3.grid(row=0, column=1, padx=10, pady=5)
+    
+    self.label_intervalos3 = ttk.Label(self.tab3, text="Numero de intervalos")
+    self.label_intervalos3.grid(row=3, column=0, padx=10, pady=5, sticky="w")
+
+    self.entry_intervals3 =  ttk.Combobox(self.tab3,
+                                        state="redondly",
+                                        values=[10,15,20,25])
+    self.entry_intervals3.grid(row=3, column=1, padx=10, pady=5)
+
 
     self.label_M = ttk.Label(self.tab3, text="Ingrese la media:")
     self.label_M.grid(row=1, column=0, padx=10, pady=5, sticky="w")
@@ -468,11 +447,11 @@ def interfaz_normal(self, root):
     self.button_generate.grid(
          row=5, column=0, columnspan=2, padx=10, pady=10)
 
-    self.canvas = tk.Canvas(self.tab3, width=600, height=400)
+    self.canvas = tk.Canvas(self.tab3, width=400, height=600)
     self.canvas.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
-    self.text_output3 = tk.Text(self.tab3, width=50, height=10)
-    self.text_output3.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
+    self.text_output3 = tk.Text(self.tab3, width=70, height=30)
+    self.text_output3.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
 def interfaz_poisson(self, root):
     self.tab4 = ttk.Frame(self.notebook)
@@ -493,6 +472,24 @@ def interfaz_poisson(self, root):
 
     self.text_output4 = tk.Text(self.tab4, width=50, height=10)
     self.text_output4.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
+
+
+
+def controlar_N(NI):           
+    # Validacion de que la cantidad de muestras sea menor a un millon y que sea un numero
+    try:
+        N = int(NI)
+        if N > 1000000:
+            messagebox.showerror(
+                "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
+            return
+                        
+    except ValueError:
+            messagebox.showerror(
+                "Error", "El valor de la cantidad de muestras (N) debe ser un numero.")
+            return
+    return N
+
 
 root = tk.Tk()
 app = GeneradorDeRandoms(root)
