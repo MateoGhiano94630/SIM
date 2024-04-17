@@ -142,12 +142,20 @@ def exponencial(self):
                 tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
             self.text_output2.insert(tk.END, resultado_prueba)
 def uniforme(self):
-            N = int(self.entry_N.get())
-            # Validacion de que la cantidad de muestras sea menor a un millon 
-            if N > 1000000:
+           
+            # Validacion de que la cantidad de muestras sea menor a un millon y que sea un numero
+            try:
+                N = int(self.entry_N.get())
+                if N > 1000000:
+                    messagebox.showerror(
+                        "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
+                    return
+                    return
+            except ValueError:
                 messagebox.showerror(
-                    "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
+                    "Error", "El valor de la cantidad de muestras (N) debe ser un numero.")
                 return
+            
             # Validacion que el valor de a sea menor que el valor de b y que ambos sean numeros
             try:
                 A = float(self.entry_A.get())
@@ -168,7 +176,7 @@ def uniforme(self):
             self.text_output.insert(
                 tk.END, "Nueva serie de números aleatorios uniformemente distribuidos:\n")
             for num in random_numbers:
-                self.text_output.insert(tk.END, f"{num:.4f}\n")
+                self.text_output.insert(tk.END, f"{num:.4f}\t")
 
             # Reviso que el numero de intervalos este entre los aceptables y sea un numero
             try:
@@ -234,6 +242,7 @@ def uniforme(self):
             else:
                 resultado_prueba = "No se pasó la prueba del Ji cuadrado. Se rechaza la H0"
 
+            
             # Mostrar histograma con frecuencias observadas
             plt.figure()
             plt.hist(random_numbers, bins=num_intervals, edgecolor='black')
@@ -245,17 +254,10 @@ def uniforme(self):
             plt.title('Histograma de Frecuencias')
             plt.grid(True)
             plt.show()
-
-            # Mostrar resultados en el widget de texto
-            self.text_output.insert(
-                tk.END, "Resultados del test de Ji cuadrado:\n")
-            self.text_output.insert(
-                tk.END, f"Grados de libertad: {grados_libertad}\n")
-            self.text_output.insert(
-                tk.END, f"Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n")
-            self.text_output.insert(
-                tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
-            self.text_output.insert(tk.END, resultado_prueba)
+             # Mostrar resultados en el widget de texto
+            messagebox.showinfo(title="Resultados del test de Ji cuadrado", message=f"Grados de libertad: {grados_libertad}\n Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n  Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n {resultado_prueba}")
+            
+           
             
 def normal(self):
                 # sumar ambos n1
@@ -370,7 +372,10 @@ def interfaz_uniforme(self, root):
         self.tab1, text="Número de intervalos:")
     self.label_intervals.grid(row=4, column=0, padx=10, pady=5, sticky="w")
 
-    self.entry_intervals = ttk.Entry(self.tab1)
+    
+    self.entry_intervals = ttk.Combobox(self.tab1,
+                                        state="redondly",
+                                        values=[10,15,20,25])
     self.entry_intervals.grid(row=4, column=1, padx=10, pady=5)
 
     self.button_generate = ttk.Button(
@@ -378,12 +383,12 @@ def interfaz_uniforme(self, root):
     self.button_generate.grid(
         row=5, column=0, columnspan=2, padx=10, pady=10)
 
-    self.canvas = tk.Canvas(self.tab1, width=600, height=400)
+    self.canvas = tk.Canvas(self.tab1, width=400, height=600)
     self.canvas.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
     # arreglar ancho y alto
     self.text_output = tk.Text(self.tab1, width=70, height=30)
-    self.text_output.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
+    self.text_output.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
 def interfaz_exponencial(self, root):
     self.tab2 = ttk.Frame(self.notebook)
