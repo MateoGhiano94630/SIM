@@ -9,7 +9,6 @@ import math
 
 
 
-
 class GeneradorDeRandoms:
     def __init__(self, root):
         
@@ -144,10 +143,12 @@ def exponencial(self):
             self.text_output2.insert(tk.END, resultado_prueba)
 def uniforme(self):
             N = int(self.entry_N.get())
+            # Validacion de que la cantidad de muestras sea menor a un millon 
             if N > 1000000:
                 messagebox.showerror(
                     "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
                 return
+            # Validacion que el valor de a sea menor que el valor de b y que ambos sean numeros
             try:
                 A = float(self.entry_A.get())
                 B = float(self.entry_B.get())
@@ -160,6 +161,7 @@ def uniforme(self):
                     "Error", "Los valores de A y B deben ser números.")
                 return
 
+            # Genera una cantidad N de numeros randoms en el intervalo entre A y B
             random_numbers = np.random.uniform(A, B, N)
 
             # Mostrar la nueva serie de números aleatorios en el widget de texto
@@ -168,6 +170,7 @@ def uniforme(self):
             for num in random_numbers:
                 self.text_output.insert(tk.END, f"{num:.4f}\n")
 
+            # Reviso que el numero de intervalos este entre los aceptables y sea un numero
             try:
                 num_intervals = int(self.entry_intervals.get())
                 if num_intervals not in [10, 15, 20, 25]:
@@ -179,35 +182,57 @@ def uniforme(self):
                     "Error", "El número de intervalos debe ser un número entero.")
                 return
 
-            # Calcular límites de intervalos
+        
             min_num = np.min(random_numbers)
             max_num = np.max(random_numbers)
             rango = max_num - min_num
             amplitud = rango / num_intervals
+            
+            # primera vuelta i vale 0 entonces el inferior es el  minimo
+            # luego se multiplica i por la amplitud y se le suma al minimo numero
             limites_inferiores = [min_num + i * amplitud for i in range(num_intervals)]
+            
+            # a cada limite inferior se le suma la amplitud
             limites_superiores = [
                 lim_inf + amplitud for lim_inf in limites_inferiores]
 
+            
             # Calcular frecuencias observadas
+            # se utiliza np.histogram para calcular las FO
+            # random numbers es la serie de randoms a la cual queremos obtener las FO
+            # bins es la cantidad de separaciones o intervalos 
+            # la funcion retorna dos valores uno es un array con las FO y el otro es ignorable
             freq_observadas, _ = np.histogram(
                 random_numbers, bins=num_intervals)
 
+
             # Calcular frecuencia esperada
+            # Dado que es uniforme todas las frecuencias esperadas son iguales
+            # asi que dividioms la cantidad de randoms por el numero de intervalos
             freq_esperada = N / num_intervals
 
+            
+
             # Calcular estadístico de Ji cuadrado
+            #(O-E)^2/E
+            # la funcion sum de la libreria numpy va sumando los resultados de
+            # realizar la formula ingresada posteriormente en cada uno de los valores
+            # de los array de la frecuencia observada y esperada
             ji_cuadrado_calculado = np.sum(
                 (freq_observadas - freq_esperada) ** 2 / freq_esperada)
 
             # Obtener el valor crítico de la tabla de Ji cuadrado
+            # los grados de libertad son el numero de intervalos menos 1
             grados_libertad = num_intervals - 1
+            # la funcion chi2 es de la liberira scipy y devuelve el chi calculado con un 
+            # nivel de aceptacion del 95% y un nivel de rechazo 5%
             ji_cuadrado_tabla = chi2.ppf(0.95, grados_libertad)
 
             # Verificar si se pasó la prueba de Ji cuadrado
             if ji_cuadrado_calculado <= ji_cuadrado_tabla:
-                resultado_prueba = "Se pasó de forma exitosa la prueba del Ji cuadrado."
+                resultado_prueba = "Se pasó de forma exitosa la prueba del Ji cuadrado. Se acepta la H0"
             else:
-                resultado_prueba = "No se pasó la prueba del Ji cuadrado."
+                resultado_prueba = "No se pasó la prueba del Ji cuadrado. Se rechaza la H0"
 
             # Mostrar histograma con frecuencias observadas
             plt.figure()
@@ -231,6 +256,7 @@ def uniforme(self):
             self.text_output.insert(
                 tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
             self.text_output.insert(tk.END, resultado_prueba)
+            
 def normal(self):
                 # sumar ambos n1
             N = int(self.entry_N3.get())
@@ -324,6 +350,7 @@ def interfaz_uniforme(self, root):
 
     self.label_N = ttk.Label(self.tab1, text="Cantidad de muestras (N):")
     self.label_N.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    
     self.entry_N = ttk.Entry(self.tab1)
     self.entry_N.grid(row=1, column=1, padx=10, pady=5)
 
@@ -354,7 +381,8 @@ def interfaz_uniforme(self, root):
     self.canvas = tk.Canvas(self.tab1, width=600, height=400)
     self.canvas.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
-    self.text_output = tk.Text(self.tab1, width=50, height=10)
+    # arreglar ancho y alto
+    self.text_output = tk.Text(self.tab1, width=70, height=30)
     self.text_output.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
 
 def interfaz_exponencial(self, root):
