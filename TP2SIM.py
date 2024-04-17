@@ -9,6 +9,7 @@ import math
 
 
 
+
 class GeneradorDeRandoms:
     def __init__(self, root):
         
@@ -142,7 +143,7 @@ def exponencial(self):
                 tk.END, f"Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n")
             self.text_output2.insert(tk.END, resultado_prueba)
 def uniforme(self):
-           
+        
             # Validacion de que la cantidad de muestras sea menor a un millon y que sea un numero
             try:
                 N = int(self.entry_N.get())
@@ -150,7 +151,7 @@ def uniforme(self):
                     messagebox.showerror(
                         "Error", "La cantidad de muestras (N) no puede ser mayor a 1,000,000.")
                     return
-                    return
+                    
             except ValueError:
                 messagebox.showerror(
                     "Error", "El valor de la cantidad de muestras (N) debe ser un numero.")
@@ -256,8 +257,25 @@ def uniforme(self):
             plt.show()
              # Mostrar resultados en el widget de texto
             messagebox.showinfo(title="Resultados del test de Ji cuadrado", message=f"Grados de libertad: {grados_libertad}\n Ji cuadrado calculado: {ji_cuadrado_calculado:.4f}\n  Ji cuadrado de tabla: {ji_cuadrado_tabla:.4f}\n {resultado_prueba}")
-            
+
+            # Mostrar Tabla de frecuencias
+            plt.figure(figsize=(8, 4))
+            columns = ('Intervalo', 'Frecuencia Observada', 'Frecuencia Esperada')
+            rows = [f'{lim_inf:.2f} - {lim_sup:.2f}' for lim_inf, lim_sup in zip(limites_inferiores, limites_superiores)]
+            cell_text = [[intervalo, str(freq), freq_esperada] for intervalo, freq in zip(rows, freq_observadas)]
+
+            plt.table(cellText=cell_text, colLabels=columns, loc='center')
+            plt.axis('off')  # Ocultar ejes para que se vea solo la tabla
+
+            plt.title('Tabla de Frecuencias')
+            plt.show()
+        
            
+                          
+
+           
+        
+            
             
 def normal(self):
                 # sumar ambos n1
