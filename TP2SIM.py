@@ -142,7 +142,7 @@ def uniforme(self):
             # Mostrar Tabla de frecuencias
             plt.figure(figsize=(8, 4))
             columns = ('Intervalo', 'Frecuencia Observada', 'Frecuencia Esperada')
-            rows = [f'{lim_inf:.2f} - {lim_sup:.2f}' for lim_inf, lim_sup in zip(limites_inferiores, limites_superiores)]
+            rows = [f'{lim_inf:.4f} - {lim_sup:.4f}' for lim_inf, lim_sup in zip(limites_inferiores, limites_superiores)]
             cell_text = [[intervalo, str(freq), round(freq_esperada,4)] for intervalo, freq in zip(rows, freq_observadas)]
 
             plt.table(cellText=cell_text, colLabels=columns, loc='center')

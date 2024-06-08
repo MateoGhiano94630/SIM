@@ -1,39 +1,101 @@
-import matplotlib.pyplot as plt
+import random
+def gol():
+    
+    primer_vector = [0] * 11
+    n = 100
+    acu = 0
+    acu_precio = 0
+ 
+    
+    for i in range(n):
+        primer_vector[3] = 0
+        primer_vector[4] = 0
+        primer_vector[5] = 0
+        primer_vector[6] = 0
+        primer_vector[7] = 0
+        primer_vector[8] = 0
+        primer_vector[0] = i
+        primer_vector[1] = random.random()
+        if primer_vector[1] > 0.29:
+            primer_vector[2] = "Sí abrio"
+            primer_vector[3] = random.random()
+            if primer_vector[3] < 0.20:
+                # abre señor
+                primer_vector[4] = "Señor"
+                primer_vector[5] = random.random()
+                if primer_vector[5] < 0.25:
+                    primer_vector[6] = "Si vende"
+                    primer_vector[7] = random.random()
+                    if primer_vector[7] < 0.10:
+                        # vende 1 
+                        primer_vector[8] = 1
+                        acu += primer_vector[8]
+                        
+                    elif primer_vector[7] < 0.50:
+                        # vende 2 
+                        primer_vector[8] = 2
+                        acu += primer_vector[8]
+                        acu_precio = acu * 200
+                    elif primer_vector[7] < 0.80:
+                        # vende 3 
+                        primer_vector[8] = 3
+                        acu += primer_vector[8]
+                        acu_precio = acu * 200
+                    else:
+                        # vende 4
+                        primer_vector[8] = 1
+                        acu += primer_vector[8]
+                        acu_precio = acu * 200
+                        
+                else:
+                    # no vende
+                    primer_vector[6] = "No vende"
+                   
+                    
+                    
+        
+            else:
+                primer_vector[4] = "Señora"
+                primer_vector[5] = random.random()
+                if primer_vector[5] < 0.15:
+                    primer_vector[6] = "Si vende"
+                    primer_vector[7] = random.random()
+                    if primer_vector[7] < 0.60:
+                        # vende 1 
+                        primer_vector[8] = 1
+                        acu += primer_vector[8]
+                        acu_precio = acu * 200
+                    elif primer_vector[7] < 0.90:
+                        # vende 2 
+                        primer_vector[8] = 2
+                        acu += primer_vector[8]
+                        acu_precio = acu * 200
+                    else:
+                        # vende 3 
+                        primer_vector[8] = 3
+                        acu += primer_vector[8]
+                        acu_precio = acu * 200
+                
+                else:
+                    # no vende
+                     # no vende
+                    primer_vector[6] = "No vende"
+                    
+                    
+       
+        else:
+             primer_vector[2] = "No abrio"
+         
+             
+        primer_vector[9] += acu
+        primer_vector[10]+= acu_precio
+        print(primer_vector)
 
-# Ejemplo de datos (reemplaza esto con tus datos)
-data = [6.5079, 6.5623, 7.5090, 6.4982, 5.9707, 6.4051, 8.9899, 9.1341, 8.1013, 8.4095,
-        6.8815, 7.2886, 5.1283, 5.8433, 6.7410, 6.5494, 7.9901, 7.5875, 6.8981, 5.0031,
-        7.1259, 7.2149, 9.7560, 6.0114, 7.7789, 9.2756, 7.1404, 9.1922, 5.8856, 7.1612,
-        8.3901, 7.2051, 9.1978, 9.4618, 6.3143, 7.9521, 5.2534, 9.1595, 7.9832, 7.3189,
-        7.7543, 5.6686, 8.0893, 5.2091, 7.3390, 5.4481, 5.2811, 6.5555, 6.9435, 5.6888,
-        7.9723, 6.7333, 7.3794, 5.4712, 8.0570, 9.6573, 5.9663, 6.6218, 7.5874, 9.1504,
-        9.6949, 9.4562, 7.5661, 9.3683, 5.6308, 5.3979, 9.0706, 8.9936, 9.3616, 9.8610,
-        6.8146, 8.9586, 8.4081, 9.9022, 7.1131, 5.7057, 6.4058, 9.6918, 9.6054, 7.9037,
-        7.3213, 8.6978, 5.3581, 8.7520, 9.3306, 9.4337, 9.8189, 7.4440, 8.5121, 9.6869,
-        7.1968, 7.2291, 7.9183, 9.6154, 8.7457, 6.7405, 6.2465, 6.2178, 7.0673, 8.4028]
-
-# Número de intervalos (ajusta según tu necesidad)
-num_intervalos = 15
-
-# Calcular las frecuencias utilizando pandas
-frecuencias =  [6.5079, 6.5623, 7.5090, 6.4982, 5.9707, 6.4051, 8.9899, 9.1341, 8.1013, 8.4095,
-        6.8815, 7.2886, 5.1283, 5.8433, 6.7410, 6.5494, 7.9901, 7.5875, 6.8981, 5.0031,
-        7.1259, 7.2149, 9.7560, 6.0114, 7.7789, 9.2756, 7.1404, 9.1922, 5.8856, 7.1612,
-        8.3901, 7.2051, 9.1978, 9.4618, 6.3143, 7.9521, 5.2534, 9.1595, 7.9832, 7.3189,
-        7.7543, 5.6686, 8.0893, 5.2091, 7.3390, 5.4481, 5.2811, 6.5555, 6.9435, 5.6888,
-        7.9723, 6.7333, 7.3794, 5.4712, 8.0570, 9.6573, 5.9663, 6.6218, 7.5874, 9.1504,
-        9.6949, 9.4562, 7.5661, 9.3683, 5.6308, 5.3979, 9.0706, 8.9936, 9.3616, 9.8610,
-        6.8146, 8.9586, 8.4081, 9.9022, 7.1131, 5.7057, 6.4058, 9.6918, 9.6054, 7.9037,
-        7.3213, 8.6978, 5.3581, 8.7520, 9.3306, 9.4337, 9.8189, 7.4440, 8.5121, 9.6869,
-        7.1968, 7.2291, 7.9183, 9.6154, 8.7457, 6.7405, 6.2465, 6.2178, 7.0673, 8.4028]
-
-# Crear el histograma
-plt.hist(data, bins=num_intervalos, edgecolor='black')
-
-# Añadir etiquetas y título
-plt.xlabel('Valores')
-plt.ylabel('Frecuencia')
-plt.title('Histograma de Frecuencias')
-
-# Mostrar la tabla de frecuencias
-print(frecuencias)
+ 
+        
+       
+    
+    print(primer_vector)
+    
+    
+gol()
