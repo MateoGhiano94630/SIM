@@ -2,15 +2,10 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from scipy.stats import chi2, expon, norm
-from collections import Counter
-import math
+from scipy.stats import chi2, norm
 
 
-
-
-class GeneradorDeRandoms:
+class Distribuciones:
     def __init__(self, root):
         
         # PESTAÑA 1
@@ -22,11 +17,9 @@ class GeneradorDeRandoms:
         # PESTAÑA 3
         interfaz_normal(self, root)
 
-        # PESTAÑA 4
-        interfaz_poisson(self, root)
 
     def generate_random_numbers(self):
-        self.text_output.delete(1.0, tk.END)  # Limpiar el widget de texto
+        self.text_output.delete(1.0, tk.END)  # Limpiar el widget de texto MAL
         current_tab = self.notebook.index("current")
 
         
@@ -42,10 +35,7 @@ class GeneradorDeRandoms:
         elif current_tab == 2:
             normal(self)
 
-        # Poisson
-        elif current_tab == 3:
-            pass
-
+       
 def uniforme(self):
 
             N = controlar_N(int(self.entry_N.get()))
@@ -156,6 +146,12 @@ def exponencial(self):
             
             random_numbers = np.random.exponential(scale=1/int(self.entry_L.get()), size=int(self.entry_N2.get()))
             
+            # Mostrar la nueva serie de números aleatorios en el widget de texto
+            self.text_output2.insert(
+                tk.END, "Nueva serie de números aleatorios uniformemente distribuidos:\n")
+            for num in random_numbers:
+                self.text_output2.insert(tk.END, f"{num:.4f}\t")
+            
             num_intervals = int(self.entry_intervals2.get())  
             
             # Calcular límites de intervalos
@@ -240,6 +236,7 @@ def normal(self):
             MED = float(self.entry_M.get())
             DS = float(self.entry_DS.get())
             num_intervals = int(self.entry_intervals3.get())
+            
               
             NT = [0]
 
@@ -248,6 +245,12 @@ def normal(self):
 
             NT.extend(N1)
             NT.extend(N2)
+
+            # Mostrar la nueva serie de números aleatorios en el widget de texto
+            self.text_output3.insert(
+                tk.END, "Nueva serie de números aleatorios uniformemente distribuidos:\n")
+            for num in (NT):
+                self.text_output3.insert(tk.END, f"{num:.4f}\t")
 
             min_num = np.min(NT)
             max_num = np.max(NT)
@@ -373,7 +376,7 @@ def interfaz_uniforme(self, root):
 
     # arreglar ancho y alto
     self.text_output = tk.Text(self.tab1, width=70, height=30)
-    self.text_output.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
+    self.text_output.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
 
 def interfaz_exponencial(self, root):
     self.tab2 = ttk.Frame(self.notebook)
@@ -453,26 +456,6 @@ def interfaz_normal(self, root):
     self.text_output3 = tk.Text(self.tab3, width=70, height=30)
     self.text_output3.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
-def interfaz_poisson(self, root):
-    self.tab4 = ttk.Frame(self.notebook)
-    self.notebook.add(self.tab4, text="Poisson")
-
-    self.label_N4 = ttk.Label(self.tab4, text="Cantidad de muestras (N):")
-    self.label_N4.grid(row=0, column=0, padx=10, pady=5, sticky="w")
-    self.entry_N4 = ttk.Entry(self.tab4)
-    self.entry_N4.grid(row=0, column=1, padx=10, pady=5)
-
-    self.button_generate = ttk.Button(
-        self.tab4, text="Generar", command=self.generate_random_numbers)
-    self.button_generate.grid(
-        row=5, column=0, columnspan=2, padx=10, pady=10)
-
-    self.canvas = tk.Canvas(self.tab4, width=600, height=400)
-    self.canvas.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
-
-    self.text_output4 = tk.Text(self.tab4, width=50, height=10)
-    self.text_output4.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
-
 
 
 def controlar_N(NI):           
@@ -492,5 +475,5 @@ def controlar_N(NI):
 
 
 root = tk.Tk()
-app = GeneradorDeRandoms(root)
+app = Distribuciones(root)
 root.mainloop()
